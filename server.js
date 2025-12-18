@@ -11,7 +11,7 @@ app.use(cors());
 app.use(express.json());
 
 // NVIDIA NIM API configuration
-const NIM_API_BASE = process.env.NIM_API_BASE || 'https://integrate.api.nvidia.com/v1';
+const NIM_API_BASE = process.env.NIM_API_BASE || 'https://integrate.api.nvidia.com';
 const NIM_API_KEY = process.env.NIM_API_KEY;
 
 // 🔥 REASONING DISPLAY TOGGLE - Shows/hides reasoning in output
@@ -100,7 +100,7 @@ app.post('/v1/chat/completions', async (req, res) => {
     let nimModel = MODEL_MAPPING[model];
     if (!nimModel) {
       try {
-        await axios.post(`${NIM_API_BASE}/chat/completions`, {
+        await axios.post(`${NIM_API_BASE}/v1/chat/completions`, {
           model: model,
           messages: [{ role: 'user', content: 'test' }],
           max_tokens: 1
@@ -137,7 +137,7 @@ app.post('/v1/chat/completions', async (req, res) => {
     };
     
     // Make request to NVIDIA NIM API
-    const response = await axios.post(`${NIM_API_BASE}/chat/completions`, nimRequest, {
+    const response = await axios.post(`${NIM_API_BASE}/v1/chat/completions`, nimRequest, {
       headers: {
         'Authorization': `Bearer ${NIM_API_KEY}`,
         'Content-Type': 'application/json'
