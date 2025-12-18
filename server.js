@@ -20,15 +20,49 @@ const SHOW_REASONING = false; // Set to true to show reasoning with <think> tags
 // 🔥 THINKING MODE TOGGLE - Enables thinking for specific models that support it
 const ENABLE_THINKING_MODE = false; // Set to true to enable chat_template_kwargs thinking parameter
 
-// Model mapping (adjust based on available NIM models)
+// Model mapping (expanded with more DeepSeek, Gemini, and GPT models)
 const MODEL_MAPPING = {
+  // GPT Models
   'gpt-3.5-turbo': 'nvidia/llama-3.1-nemotron-ultra-253b-v1',
   'gpt-4': 'qwen/qwen3-coder-480b-a35b-instruct',
   'gpt-4-turbo': 'moonshotai/kimi-k2-instruct-0905',
   'gpt-4o': 'deepseek-ai/deepseek-v3.1',
+  'gpt-4o-mini': 'meta/llama-3.1-70b-instruct',
+  'gpt-4-1106-preview': 'qwen/qwen3-coder-480b-a35b-instruct',
+  'gpt-4-0125-preview': 'qwen/qwen3-coder-480b-a35b-instruct',
+  
+  // DeepSeek Models
+  'deepseek-chat': 'deepseek-ai/deepseek-v3.1',
+  'deepseek-coder': 'deepseek-ai/deepseek-v3.1',
+  'deepseek-v3': 'deepseek-ai/deepseek-v3.1',
+  'deepseek-v3.1': 'deepseek-ai/deepseek-v3.1',
+  'deepseek-v3.2': 'deepseek-ai/deepseek-v3.2',
+  'deepseek-r1': 'deepseek-ai/deepseek-r1',
+  'deepseek-r1-0528': 'deepseek-ai/deepseek-r1-0528',
+  'deepseek-r1-distill-qwen-32b': 'deepseek-ai/deepseek-r1-distill-qwen-32b',
+  'deepseek-r1-distill-llama-70b': 'deepseek-ai/deepseek-r1-distill-llama-70b',
+  
+  // Gemini Models
+  'gemini-pro': 'qwen/qwen3-next-80b-a3b-thinking',
+  'gemini-1.5-pro': 'google/gemma-2-27b-it',
+  'gemini-1.5-flash': 'google/gemma-2-9b-it',
+  'gemini-2.0-flash': 'google/gemma-2-27b-it',
+  'gemini-flash': 'google/gemma-2-9b-it',
+  'kimi-k2-thinking': 'moonshotai/kimi-k2-thinking',
+  
+  // Claude Models
   'claude-3-opus': 'openai/gpt-oss-120b',
   'claude-3-sonnet': 'openai/gpt-oss-20b',
-  'gemini-pro': 'qwen/qwen3-next-80b-a3b-thinking' 
+  'claude-3-haiku': 'meta/llama-3.1-8b-instruct',
+  'claude-3.5-sonnet': 'qwen/qwen3-coder-480b-a35b-instruct',
+  
+  // Additional Popular Models
+  'llama-3.1-405b': 'meta/llama-3.1-405b-instruct',
+  'llama-3.1-70b': 'meta/llama-3.1-70b-instruct',
+  'llama-3.1-8b': 'meta/llama-3.1-8b-instruct',
+  'qwen-72b': 'qwen/qwen3-coder-480b-a35b-instruct',
+  'mixtral-8x7b': 'mistralai/mixtral-8x7b-instruct-v0.1',
+  'mixtral-8x22b': 'mistralai/mixtral-8x22b-instruct-v0.1'
 };
 
 // Health check endpoint
@@ -37,7 +71,8 @@ app.get('/health', (req, res) => {
     status: 'ok', 
     service: 'OpenAI to NVIDIA NIM Proxy', 
     reasoning_display: SHOW_REASONING,
-    thinking_mode: ENABLE_THINKING_MODE
+    thinking_mode: ENABLE_THINKING_MODE,
+    total_models: Object.keys(MODEL_MAPPING).length
   });
 });
 
@@ -242,4 +277,5 @@ app.listen(PORT, () => {
   console.log(`Health check: http://localhost:${PORT}/health`);
   console.log(`Reasoning display: ${SHOW_REASONING ? 'ENABLED' : 'DISABLED'}`);
   console.log(`Thinking mode: ${ENABLE_THINKING_MODE ? 'ENABLED' : 'DISABLED'}`);
+  console.log(`Available models: ${Object.keys(MODEL_MAPPING).length}`);
 });
