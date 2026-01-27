@@ -214,6 +214,4 @@ app.listen(PORT, () => {
   console.log(`Health: http://localhost:${PORT}/health`);
   console.log(`Models: ${Object.keys(MODEL_MAPPING).length} available`);
   console.log(`========================================`);
-});Thinking mode: ${ENABLE_THINKING_MODE ? 'ENABLED' : 'DISABLED'}`);
-  console.log(`Available models: ${Object.keys(MODEL_MAPPING).length}`);
 });
