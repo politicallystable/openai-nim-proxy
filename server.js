@@ -29,16 +29,25 @@ const MODEL_MAPPING = {
   'gpt-4o': 'meta/llama-3.3-70b-instruct',
   'gpt-4o-mini': 'meta/llama-3.1-8b-instruct',
   
-  // DeepSeek Models (EXACT NAMES from NVIDIA API)
+  // DeepSeek Models (VERIFIED - removed retired model)
   'deepseek-r1': 'deepseek-ai/deepseek-r1',
   'deepseek-v3.1': 'deepseek-ai/deepseek-v3_1',
   'deepseek-v3.2': 'deepseek-ai/deepseek-v3_2',
-  'deepseek-r1-0528': 'deepseek-ai/deepseek-r1-0528',
   'deepseek-r1-distill-qwen-32b': 'deepseek-ai/deepseek-r1-distill-qwen-32b',
   'deepseek-r1-distill-qwen-14b': 'deepseek-ai/deepseek-r1-distill-qwen-14b',
   'deepseek-r1-distill-qwen-7b': 'deepseek-ai/deepseek-r1-distill-qwen-7b',
   'deepseek-r1-distill-llama-70b': 'deepseek-ai/deepseek-r1-distill-llama-70b',
   'deepseek-r1-distill-llama-8b': 'deepseek-ai/deepseek-r1-distill-llama-8b',
+  
+  // Qwen Reasoning Models (POWERFUL!)
+  'qwen-thinking': 'qwen/qwen3-next-80b-a3b-thinking',
+  'qwen-235b-thinking': 'qwen/qwen3-235b-a22b',
+  'qwq-32b': 'qwen/qwq-32b',
+  'qwen3-next-80b-thinking': 'qwen/qwen3-next-80b-a3b-thinking',
+  
+  // NVIDIA Nemotron Reasoning Models
+  'nemotron-nano': 'nvidia/nemotron-3-nano-30b-a3b',
+  'nemotron-super': 'nvidia/llama-3.3-nemotron-super-49b-v1',
   
   // Meta Llama (100% guaranteed to work)
   'llama-3.1-405b': 'meta/llama-3.1-405b-instruct',
@@ -46,7 +55,7 @@ const MODEL_MAPPING = {
   'llama-3.1-8b': 'meta/llama-3.1-8b-instruct',
   'llama-3.3-70b': 'meta/llama-3.3-70b-instruct',
   
-  // Kimi (verified working in examples)
+  // Kimi (verified working - 256K context!)
   'kimi': 'moonshotai/kimi-k2-instruct',
   'kimi-k2': 'moonshotai/kimi-k2-instruct',
   'kimi-k2-instruct': 'moonshotai/kimi-k2-instruct',
@@ -55,9 +64,11 @@ const MODEL_MAPPING = {
   'gemma-27b': 'google/gemma-2-27b-it',
   'gemma-9b': 'google/gemma-2-9b-it',
   
-  // Qwen
+  // Qwen Standard Models
   'qwen-72b': 'qwen/qwen2.5-72b-instruct',
   'qwen-32b': 'qwen/qwen2.5-32b-instruct',
+  'qwen-14b': 'qwen/qwen2.5-14b-instruct',
+  'qwen-7b': 'qwen/qwen2.5-7b-instruct',
   
   // Mixtral
   'mixtral-8x7b': 'mistralai/mixtral-8x7b-instruct-v0.1',
