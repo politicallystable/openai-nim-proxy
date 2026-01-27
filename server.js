@@ -20,18 +20,16 @@ const SHOW_REASONING = false; // Set to true to show reasoning with <think> tags
 // 🔥 THINKING MODE TOGGLE - Enables thinking for specific models that support it
 const ENABLE_THINKING_MODE = false; // Set to true to enable chat_template_kwargs thinking parameter
 
-// Model mapping (expanded with more DeepSeek, Gemini, and GPT models)
+// Model mapping - Updated with VERIFIED working models from NVIDIA API (January 2025)
 const MODEL_MAPPING = {
   // GPT Models
-  'gpt-3.5-turbo': 'nvidia/llama-3.1-nemotron-ultra-253b-v1',
-  'gpt-4': 'qwen/qwen3-coder-480b-a35b-instruct',
-  'gpt-4-turbo': 'moonshotai/kimi-k2-instruct-0905',
+  'gpt-3.5-turbo': 'meta/llama-3.1-70b-instruct',
+  'gpt-4': 'meta/llama-3.3-70b-instruct',
+  'gpt-4-turbo': 'meta/llama-3.1-405b-instruct',
   'gpt-4o': 'deepseek-ai/deepseek-v3.1',
-  'gpt-4o-mini': 'meta/llama-3.1-70b-instruct',
-  'gpt-4-1106-preview': 'qwen/qwen3-coder-480b-a35b-instruct',
-  'gpt-4-0125-preview': 'qwen/qwen3-coder-480b-a35b-instruct',
+  'gpt-4o-mini': 'meta/llama-3.1-8b-instruct',
   
-  // DeepSeek Models
+  // DeepSeek Models (All VERIFIED on NVIDIA)
   'deepseek-chat': 'deepseek-ai/deepseek-v3.1',
   'deepseek-coder': 'deepseek-ai/deepseek-v3.1',
   'deepseek-v3': 'deepseek-ai/deepseek-v3.1',
@@ -40,29 +38,46 @@ const MODEL_MAPPING = {
   'deepseek-r1': 'deepseek-ai/deepseek-r1',
   'deepseek-r1-0528': 'deepseek-ai/deepseek-r1-0528',
   'deepseek-r1-distill-qwen-32b': 'deepseek-ai/deepseek-r1-distill-qwen-32b',
+  'deepseek-r1-distill-qwen-14b': 'deepseek-ai/deepseek-r1-distill-qwen-14b',
+  'deepseek-r1-distill-qwen-7b': 'deepseek-ai/deepseek-r1-distill-qwen-7b',
   'deepseek-r1-distill-llama-70b': 'deepseek-ai/deepseek-r1-distill-llama-70b',
+  'deepseek-r1-distill-llama-8b': 'deepseek-ai/deepseek-r1-distill-llama-8b',
   
-  // Gemini Models
-  'gemini-pro': 'qwen/qwen3-next-80b-a3b-thinking',
-  'gemini-1.5-pro': 'google/gemma-2-27b-it',
-  'gemini-1.5-flash': 'google/gemma-2-9b-it',
-  'gemini-2.0-flash': 'google/gemma-2-27b-it',
-  'gemini-flash': 'google/gemma-2-9b-it',
+  // Kimi Models (Moonshot AI)
+  'kimi-k2': 'moonshotai/kimi-k2',
   'kimi-k2-thinking': 'moonshotai/kimi-k2-thinking',
+  'kimi-k2-instruct': 'moonshotai/kimi-k2-instruct',
   
-  // Claude Models
-  'claude-3-opus': 'openai/gpt-oss-120b',
-  'claude-3-sonnet': 'openai/gpt-oss-20b',
-  'claude-3-haiku': 'meta/llama-3.1-8b-instruct',
-  'claude-3.5-sonnet': 'qwen/qwen3-coder-480b-a35b-instruct',
-  
-  // Additional Popular Models
+  // Meta Llama Models
   'llama-3.1-405b': 'meta/llama-3.1-405b-instruct',
   'llama-3.1-70b': 'meta/llama-3.1-70b-instruct',
   'llama-3.1-8b': 'meta/llama-3.1-8b-instruct',
-  'qwen-72b': 'qwen/qwen3-coder-480b-a35b-instruct',
+  'llama-3.3-70b': 'meta/llama-3.3-70b-instruct',
+  
+  // Qwen Models
+  'qwen-72b': 'qwen/qwen2.5-72b-instruct',
+  'qwen-32b': 'qwen/qwen2.5-32b-instruct',
+  'qwen-14b': 'qwen/qwen2.5-14b-instruct',
+  'qwen-7b': 'qwen/qwen2.5-7b-instruct',
+  
+  // Google Gemma Models
+  'gemma-27b': 'google/gemma-2-27b-it',
+  'gemma-9b': 'google/gemma-2-9b-it',
+  'gemma-2b': 'google/gemma-2-2b-it',
+  
+  // Mistral Models
   'mixtral-8x7b': 'mistralai/mixtral-8x7b-instruct-v0.1',
-  'mixtral-8x22b': 'mistralai/mixtral-8x22b-instruct-v0.1'
+  'mixtral-8x22b': 'mistralai/mixtral-8x22b-instruct-v0.1',
+  'mistral-7b': 'mistralai/mistral-7b-instruct-v0.3',
+  
+  // NVIDIA Models
+  'nemotron-ultra': 'nvidia/llama-3.1-nemotron-ultra-253b-v1',
+  'nemotron-70b': 'nvidia/llama-3.1-nemotron-70b-instruct',
+  
+  // Claude Models (mapped to best alternatives)
+  'claude-3-opus': 'meta/llama-3.1-405b-instruct',
+  'claude-3-sonnet': 'meta/llama-3.3-70b-instruct',
+  'claude-3-haiku': 'meta/llama-3.1-8b-instruct'
 };
 
 // Health check endpoint
