@@ -55,10 +55,13 @@ const MODEL_MAPPING = {
   'llama-3.1-8b': 'meta/llama-3.1-8b-instruct',
   'llama-3.3-70b': 'meta/llama-3.3-70b-instruct',
   
-  // Kimi (verified working - 256K context!)
+  // Kimi Models (256K context! - UPDATED with all versions)
   'kimi': 'moonshotai/kimi-k2-instruct',
   'kimi-k2': 'moonshotai/kimi-k2-instruct',
   'kimi-k2-instruct': 'moonshotai/kimi-k2-instruct',
+  'kimi-k2-instruct-0905': 'moonshotai/kimi-k2-instruct-0905',
+  'kimi-k2-thinking': 'moonshotai/kimi-k2-thinking',
+  'kimi-k2.5': 'moonshotai/kimi-k2.5',
   
   // Google Gemma
   'gemma-27b': 'google/gemma-2-27b-it',
