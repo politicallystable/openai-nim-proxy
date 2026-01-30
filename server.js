@@ -127,8 +127,8 @@ app.post('/v1/chat/completions', async (req, res) => {
       model: nimModel,
       messages: messages,
       temperature: temperature || 0.6,
-      max_tokens: max_tokens || 2048, // Reduced for faster responses
-      stream: stream || false
+      max_tokens: max_tokens || 4096, // Back to 4096 tokens for longer responses
+      stream: stream !== false // Force streaming for better reliability
     };
     
     // Make request to NVIDIA NIM API
@@ -138,7 +138,7 @@ app.post('/v1/chat/completions', async (req, res) => {
         'Content-Type': 'application/json'
       },
       responseType: stream ? 'stream' : 'json',
-      timeout: 120000 // 2 minute timeout for large models
+      timeout: 180000 // 3 minute timeout for thinking models
     });
     
     if (stream) {
