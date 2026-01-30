@@ -39,11 +39,14 @@ const MODEL_MAPPING = {
   'deepseek-r1-distill-llama-70b': 'deepseek-ai/deepseek-r1-distill-llama-70b',
   'deepseek-r1-distill-llama-8b': 'deepseek-ai/deepseek-r1-distill-llama-8b',
   
-  // Qwen Reasoning Models (POWERFUL!)
+  // Qwen Reasoning Models (POWERFUL! - CORRECTED NAMES)
   'qwen-thinking': 'qwen/qwen3-next-80b-a3b-thinking',
-  'qwen-235b-thinking': 'qwen/qwen3-235b-a22b',
-  'qwq-32b': 'qwen/qwq-32b',
+  'qwen3-next-thinking': 'qwen/qwen3-next-80b-a3b-thinking',
   'qwen3-next-80b-thinking': 'qwen/qwen3-next-80b-a3b-thinking',
+  'qwen3-next-instruct': 'qwen/qwen3-next-80b-a3b-instruct',
+  'qwen3-235b': 'qwen/qwen3-235b-a22b',
+  'qwen3-30b': 'qwen/qwen3-30b-a3b',
+  'qwq-32b': 'qwen/qwq-32b-preview',
   
   // NVIDIA Nemotron Reasoning Models
   'nemotron-nano': 'nvidia/nemotron-3-nano-30b-a3b',
@@ -124,7 +127,7 @@ app.post('/v1/chat/completions', async (req, res) => {
       model: nimModel,
       messages: messages,
       temperature: temperature || 0.6,
-      max_tokens: max_tokens || 4096,
+      max_tokens: max_tokens || 2048, // Reduced for faster responses
       stream: stream || false
     };
     
@@ -134,7 +137,8 @@ app.post('/v1/chat/completions', async (req, res) => {
         'Authorization': `Bearer ${NIM_API_KEY}`,
         'Content-Type': 'application/json'
       },
-      responseType: stream ? 'stream' : 'json'
+      responseType: stream ? 'stream' : 'json',
+      timeout: 120000 // 2 minute timeout for large models
     });
     
     if (stream) {
