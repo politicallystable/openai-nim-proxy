@@ -59,12 +59,12 @@ const MODEL_MAPPING = {
   'llama-3.3-70b': 'meta/llama-3.3-70b-instruct',
   
   // Kimi Models (256K context! - UPDATED with all versions)
-  'kimi': 'moonshotai/kimi-k2-instruct',
-  'kimi-k2': 'moonshotai/kimi-k2-instruct',
-  'kimi-k2-instruct': 'moonshotai/kimi-k2-instruct',
-  'kimi-k2-instruct-0905': 'moonshotai/kimi-k2-instruct-0905',
-  'kimi-k2-thinking': 'moonshotai/kimi-k2-thinking',
-  'kimi-k2.5': 'moonshotai/kimi-k2.5',
+  'kimi': 'moonshotai/kimi-k2-instruct', // ⭐ FAST - No thinking mode
+  'kimi-k2': 'moonshotai/kimi-k2-instruct', // ⭐ FAST - No thinking mode
+  'kimi-k2-instruct': 'moonshotai/kimi-k2-instruct', // ⭐ FAST - 256K context!
+  'kimi-k2-instruct-0905': 'moonshotai/kimi-k2-instruct-0905', // ⭐ FAST - Better coding
+  'kimi-k2-thinking': 'moonshotai/kimi-k2-thinking', // ⚠️ SLOW - May timeout!
+  'kimi-k2.5': 'moonshotai/kimi-k2.5', // ⭐ NEWEST! Multi-modal
   
   // Google Gemma
   'gemma-27b': 'google/gemma-2-27b-it',
