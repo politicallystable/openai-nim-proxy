@@ -122,6 +122,10 @@ app.post('/v1/chat/completions', async (req, res) => {
     
     console.log(`[REQUEST] User requested: ${model} → Using: ${nimModel}`);
     
+    // Set timeout based on model type (unlimited for Kimi models)
+    const isKimiModel = nimModel.includes('kimi');
+    const timeoutDuration = isKimiModel ? 0 : 180000; // 0 = unlimited, 180000 = 3 minutes
+    
     // Transform OpenAI request to NIM format
     const nimRequest = {
       model: nimModel,
@@ -138,7 +142,7 @@ app.post('/v1/chat/completions', async (req, res) => {
         'Content-Type': 'application/json'
       },
       responseType: stream ? 'stream' : 'json',
-      timeout: 180000 // 3 minute timeout for thinking models
+      timeout: timeoutDuration // Unlimited for Kimi, 3 minutes for others
     });
     
     if (stream) {
