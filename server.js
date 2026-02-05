@@ -1,4 +1,4 @@
-// server.js - OpenAI to NVIDIA NIM API Proxy (SIMPLE VERSION - VERIFIED MODELS ONLY)
+// server.js - OpenAI to NVIDIA NIM API Proxy (ALL MODELS)
 const express = require('express');
 const cors = require('cors');
 const axios = require('axios');
@@ -14,22 +14,16 @@ app.use(express.json());
 const NIM_API_BASE = process.env.NIM_API_BASE || 'https://integrate.api.nvidia.com';
 const NIM_API_KEY = process.env.NIM_API_KEY;
 
-// 🔥 REASONING DISPLAY TOGGLE - Shows/hides reasoning in output
-const SHOW_REASONING = false; // Set to true to show reasoning with <think> tags
-
-// 🔥 THINKING MODE TOGGLE - Enables thinking for specific models that support it
-const ENABLE_THINKING_MODE = false; // Set to true to enable chat_template_kwargs thinking parameter
-
-// SIMPLE MODEL MAPPING - ONLY VERIFIED WORKING MODELS
+// COMPLETE MODEL MAPPING - ALL AVAILABLE MODELS
 const MODEL_MAPPING = {
-  // Default GPT mappings (everyone uses these names)
+  // GPT Models (mapped to best alternatives)
   'gpt-3.5-turbo': 'meta/llama-3.1-8b-instruct',
   'gpt-4': 'meta/llama-3.3-70b-instruct',
   'gpt-4-turbo': 'meta/llama-3.1-405b-instruct',
   'gpt-4o': 'meta/llama-3.3-70b-instruct',
   'gpt-4o-mini': 'meta/llama-3.1-8b-instruct',
   
-  // DeepSeek Models (VERIFIED - removed retired model)
+  // DeepSeek Models (Reasoning & Coding)
   'deepseek-r1': 'deepseek-ai/deepseek-r1',
   'deepseek-v3.1': 'deepseek-ai/deepseek-v3_1',
   'deepseek-v3.2': 'deepseek-ai/deepseek-v3_2',
@@ -39,36 +33,46 @@ const MODEL_MAPPING = {
   'deepseek-r1-distill-llama-70b': 'deepseek-ai/deepseek-r1-distill-llama-70b',
   'deepseek-r1-distill-llama-8b': 'deepseek-ai/deepseek-r1-distill-llama-8b',
   
-  // Qwen Reasoning Models (POWERFUL! - CORRECTED NAMES)
-  'qwen-thinking': 'qwen/qwen3-next-80b-a3b-thinking',
-  'qwen3-next-thinking': 'qwen/qwen3-next-80b-a3b-thinking',
-  'qwen3-next-80b-thinking': 'qwen/qwen3-next-80b-a3b-thinking',
-  'qwen3-next-instruct': 'qwen/qwen3-next-80b-a3b-instruct',
-  'qwen3-235b': 'qwen/qwen3-235b-a22b',
-  'qwen3-30b': 'qwen/qwen3-30b-a3b',
-  'qwq-32b': 'qwen/qwq-32b-preview',
+  // Kimi Models (256K context! - UPDATED with Kimi 2.5!)
+  'kimi': 'moonshotai/kimi-k2-instruct',
+  'kimi-k2': 'moonshotai/kimi-k2-instruct',
+  'kimi-k2-instruct': 'moonshotai/kimi-k2-instruct',
+  'kimi-k2-instruct-0905': 'moonshotai/kimi-k2-instruct-0905',
+  'kimi-k2-thinking': 'moonshotai/kimi-k2-thinking',
+  'kimi-k2.5': 'moonshotai/kimi-k2.5',
+  'kimi-2.5': 'moonshotai/kimi-k2.5',
   
-  // NVIDIA Nemotron Reasoning Models
-  'nemotron-nano': 'nvidia/nemotron-3-nano-30b-a3b',
-  'nemotron-super': 'nvidia/llama-3.3-nemotron-super-49b-v1',
+  // Qwen Reasoning Models (Powerful! - Some may be degraded)
+  'qwen-thinking': 'qwen/qwen3-next-80b-a3b-thinking', // ⚠️ May be degraded
+  'qwen3-next-thinking': 'qwen/qwen3-next-80b-a3b-thinking', // ⚠️ May be degraded
+  'qwen3-next-80b-thinking': 'qwen/qwen3-next-80b-a3b-thinking', // ⚠️ May be degraded
+  'qwen3-next-instruct': 'qwen/qwen3-next-80b-a3b-instruct', // ✅ Should work
+  'qwen3-235b': 'qwen/qwen3-235b-a22b', // ⚠️ May be degraded
+  'qwen3-30b': 'qwen/qwen3-30b-a3b', // ⚠️ May be degraded
+  'qwq-32b': 'qwen/qwq-32b-preview', // ⚠️ May be degraded
   
-  // Meta Llama (100% guaranteed to work)
+  // GLM Models (Zhipu AI - Coding & Reasoning!)
+  'glm-4.7': 'z-ai/glm4_7', // ⭐⭐⭐ NEW! 400B params, 200K context, amazing for coding!
+  'glm4.7': 'z-ai/glm4_7',
+  
+  // Meta Llama Models
   'llama-3.1-405b': 'meta/llama-3.1-405b-instruct',
   'llama-3.1-70b': 'meta/llama-3.1-70b-instruct',
   'llama-3.1-8b': 'meta/llama-3.1-8b-instruct',
+  'llama-3.2-1b': 'meta/llama-3.2-1b-instruct',
+  'llama-3.2-3b': 'meta/llama-3.2-3b-instruct',
   'llama-3.3-70b': 'meta/llama-3.3-70b-instruct',
   
-  // Kimi Models (256K context! - UPDATED with all versions)
-  'kimi': 'moonshotai/kimi-k2-instruct', // ⭐ FAST - No thinking mode
-  'kimi-k2': 'moonshotai/kimi-k2-instruct', // ⭐ FAST - No thinking mode
-  'kimi-k2-instruct': 'moonshotai/kimi-k2-instruct', // ⭐ FAST - 256K context!
-  'kimi-k2-instruct-0905': 'moonshotai/kimi-k2-instruct-0905', // ⭐ FAST - Better coding
-  'kimi-k2-thinking': 'moonshotai/kimi-k2-thinking', // ⚠️ SLOW - May timeout!
-  'kimi-k2.5': 'moonshotai/kimi-k2.5', // ⭐ NEWEST! Multi-modal
+  // NVIDIA Nemotron Models
+  'nemotron-ultra': 'nvidia/llama-3.1-nemotron-ultra-253b-v1',
+  'nemotron-70b': 'nvidia/llama-3.1-nemotron-70b-instruct',
+  'nemotron-nano': 'nvidia/nemotron-3-nano-30b-a3b',
+  'nemotron-super': 'nvidia/llama-3.3-nemotron-super-49b-v1',
   
-  // Google Gemma
+  // Google Gemma Models
   'gemma-27b': 'google/gemma-2-27b-it',
   'gemma-9b': 'google/gemma-2-9b-it',
+  'gemma-2b': 'google/gemma-2-2b-it',
   
   // Qwen Standard Models
   'qwen-72b': 'qwen/qwen2.5-72b-instruct',
@@ -76,20 +80,29 @@ const MODEL_MAPPING = {
   'qwen-14b': 'qwen/qwen2.5-14b-instruct',
   'qwen-7b': 'qwen/qwen2.5-7b-instruct',
   
-  // Mixtral
+  // Mistral/Mixtral Models
   'mixtral-8x7b': 'mistralai/mixtral-8x7b-instruct-v0.1',
-  'mixtral-8x22b': 'mistralai/mixtral-8x22b-instruct-v0.1'
+  'mixtral-8x22b': 'mistralai/mixtral-8x22b-instruct-v0.1',
+  'mistral-7b': 'mistralai/mistral-7b-instruct-v0.3',
+  
+  // Microsoft Phi Models
+  'phi-3': 'microsoft/phi-3-medium-4k-instruct',
+  'phi-3-small': 'microsoft/phi-3-small-8k-instruct',
+  'phi-3-mini': 'microsoft/phi-3-mini-128k-instruct',
+  
+  // Claude Models (mapped to best alternatives)
+  'claude-3-opus': 'meta/llama-3.1-405b-instruct',
+  'claude-3-sonnet': 'meta/llama-3.3-70b-instruct',
+  'claude-3-haiku': 'meta/llama-3.1-8b-instruct'
 };
 
 // Health check endpoint
 app.get('/health', (req, res) => {
   res.json({ 
     status: 'ok', 
-    service: 'OpenAI to NVIDIA NIM Proxy (Simple)', 
-    reasoning_display: SHOW_REASONING,
-    thinking_mode: ENABLE_THINKING_MODE,
+    service: 'OpenAI to NVIDIA NIM Proxy (Complete)', 
     total_models: Object.keys(MODEL_MAPPING).length,
-    note: 'Using only verified working models'
+    note: 'All models included - get proper API key for premium models'
   });
 });
 
@@ -130,8 +143,8 @@ app.post('/v1/chat/completions', async (req, res) => {
     const nimRequest = {
       model: nimModel,
       messages: messages,
-      temperature: temperature || 0.6,
-      max_tokens: max_tokens || 4096, // Back to 4096 tokens for longer responses
+      temperature: temperature || 0.7,
+      max_tokens: max_tokens || 4096,
       stream: stream !== false // Force streaming for better reliability
     };
     
@@ -231,7 +244,7 @@ app.all('*', (req, res) => {
 
 app.listen(PORT, () => {
   console.log(`========================================`);
-  console.log(`OpenAI to NVIDIA NIM Proxy (Simple)`);
+  console.log(`OpenAI to NVIDIA NIM Proxy (Complete)`);
   console.log(`Running on port ${PORT}`);
   console.log(`Health: http://localhost:${PORT}/health`);
   console.log(`Models: ${Object.keys(MODEL_MAPPING).length} available`);
