@@ -52,8 +52,14 @@ const MODEL_MAPPING = {
   'qwq-32b': 'qwen/qwq-32b-preview', // ⚠️ May be degraded
   
   // GLM Models (Zhipu AI - Coding & Reasoning!)
-  'glm-4.7': 'z-ai/glm4_7', // ⭐⭐⭐ NEW! 400B params, 200K context, amazing for coding!
-  'glm4.7': 'z-ai/glm4_7',
+  'glm-4.7': 'z-ai/glm4.7', // ⭐⭐⭐ NEW! 400B params, 200K context, amazing for coding!
+  'glm4.7': 'z-ai/glm4.7',
+  'glm-4': 'z-ai/glm4.7',
+  
+  // MiniMax Models (Ultra-fast! 150 tokens/sec!)
+  'minimax': 'minimaxai/minimax-m2.1', // ⭐⭐⭐ SUPER FAST! 150 tokens/sec!
+  'minimax-m2.1': 'minimaxai/minimax-m2.1',
+  'minimax-2.1': 'minimaxai/minimax-m2.1',
   
   // Meta Llama Models
   'llama-3.1-405b': 'meta/llama-3.1-405b-instruct',
