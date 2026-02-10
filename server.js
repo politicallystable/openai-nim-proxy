@@ -14,6 +14,9 @@ app.use(express.json());
 const NIM_API_BASE = process.env.NIM_API_BASE || 'https://integrate.api.nvidia.com';
 const NIM_API_KEY = process.env.NIM_API_KEY;
 
+// 🔥 STREAMING TOGGLE - Force streaming ON or OFF
+const FORCE_STREAMING = true; // Set to false to disable streaming
+
 // COMPLETE MODEL MAPPING - ALL AVAILABLE MODELS
 const MODEL_MAPPING = {
   // GPT Models (mapped to best alternatives)
@@ -152,7 +155,7 @@ app.post('/v1/chat/completions', async (req, res) => {
       messages: messages,
       temperature: temperature || 0.7,
       max_tokens: max_tokens || 4096,
-      stream: stream !== false // Force streaming for better reliability
+      stream: FORCE_STREAMING // Force streaming based on toggle
     };
     
     // Make request to NVIDIA NIM API
@@ -165,7 +168,7 @@ app.post('/v1/chat/completions', async (req, res) => {
       timeout: timeoutDuration // Unlimited for Kimi, 3 minutes for others
     });
     
-    if (stream) {
+    if (FORCE_STREAMING) {
       // Handle streaming response
       res.setHeader('Content-Type', 'text/event-stream');
       res.setHeader('Cache-Control', 'no-cache');
