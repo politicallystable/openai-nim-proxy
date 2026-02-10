@@ -141,9 +141,10 @@ app.post('/v1/chat/completions', async (req, res) => {
     
     console.log(`[REQUEST] User requested: ${model} → Using: ${nimModel}`);
     
-    // Set timeout based on model type (unlimited for Kimi models)
+    // Set timeout based on model type (unlimited for Kimi and GLM models)
     const isKimiModel = nimModel.includes('kimi');
-    const timeoutDuration = isKimiModel ? 0 : 180000; // 0 = unlimited, 180000 = 3 minutes
+    const isGLMModel = nimModel.includes('glm');
+    const timeoutDuration = (isKimiModel || isGLMModel) ? 0 : 180000; // 0 = unlimited, 180000 = 3 minutes
     
     // Transform OpenAI request to NIM format
     const nimRequest = {
