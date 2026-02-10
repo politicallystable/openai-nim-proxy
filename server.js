@@ -17,6 +17,9 @@ const NIM_API_KEY = process.env.NIM_API_KEY;
 // 🔥 STREAMING TOGGLE - Force streaming ON or OFF
 const FORCE_STREAMING = true; // Set to false to disable streaming
 
+// 🔥 THINKING TOGGLE - Show reasoning process
+const SHOW_THINKING = true; // Set to false to hide thinking
+
 // COMPLETE MODEL MAPPING - ALL AVAILABLE MODELS
 const MODEL_MAPPING = {
   // GPT Models (mapped to best alternatives)
@@ -46,21 +49,21 @@ const MODEL_MAPPING = {
   'kimi-2.5': 'moonshotai/kimi-k2.5',
   
   // Qwen Reasoning Models (Powerful! - Some may be degraded)
-  'qwen-thinking': 'qwen/qwen3-next-80b-a3b-thinking', // ⚠️ May be degraded
-  'qwen3-next-thinking': 'qwen/qwen3-next-80b-a3b-thinking', // ⚠️ May be degraded
-  'qwen3-next-80b-thinking': 'qwen/qwen3-next-80b-a3b-thinking', // ⚠️ May be degraded
-  'qwen3-next-instruct': 'qwen/qwen3-next-80b-a3b-instruct', // ✅ Should work
-  'qwen3-235b': 'qwen/qwen3-235b-a22b', // ⚠️ May be degraded
-  'qwen3-30b': 'qwen/qwen3-30b-a3b', // ⚠️ May be degraded
-  'qwq-32b': 'qwen/qwq-32b-preview', // ⚠️ May be degraded
+  'qwen-thinking': 'qwen/qwen3-next-80b-a3b-thinking',
+  'qwen3-next-thinking': 'qwen/qwen3-next-80b-a3b-thinking',
+  'qwen3-next-80b-thinking': 'qwen/qwen3-next-80b-a3b-thinking',
+  'qwen3-next-instruct': 'qwen/qwen3-next-80b-a3b-instruct',
+  'qwen3-235b': 'qwen/qwen3-235b-a22b',
+  'qwen3-30b': 'qwen/qwen3-30b-a3b',
+  'qwq-32b': 'qwen/qwq-32b-preview',
   
   // GLM Models (Zhipu AI - Coding & Reasoning!)
-  'glm-4.7': 'z-ai/glm4.7', // ⭐⭐⭐ NEW! 400B params, 200K context, amazing for coding!
+  'glm-4.7': 'z-ai/glm4.7',
   'glm4.7': 'z-ai/glm4.7',
   'glm-4': 'z-ai/glm4.7',
   
   // MiniMax Models (Ultra-fast! 150 tokens/sec!)
-  'minimax': 'minimaxai/minimax-m2.1', // ⭐⭐⭐ SUPER FAST! 150 tokens/sec!
+  'minimax': 'minimaxai/minimax-m2.1',
   'minimax-m2.1': 'minimaxai/minimax-m2.1',
   'minimax-2.1': 'minimaxai/minimax-m2.1',
   
@@ -111,6 +114,8 @@ app.get('/health', (req, res) => {
     status: 'ok', 
     service: 'OpenAI to NVIDIA NIM Proxy (Complete)', 
     total_models: Object.keys(MODEL_MAPPING).length,
+    streaming_enabled: FORCE_STREAMING,
+    thinking_visible: SHOW_THINKING,
     note: 'All models included - get proper API key for premium models'
   });
 });
@@ -138,16 +143,18 @@ app.post('/v1/chat/completions', async (req, res) => {
     // Smart model selection with fallback
     let nimModel = MODEL_MAPPING[model];
     if (!nimModel) {
-      // If model not in mapping, try using it directly
       nimModel = model;
     }
     
     console.log(`[REQUEST] User requested: ${model} → Using: ${nimModel}`);
     
-    // Set timeout based on model type (unlimited for Kimi and GLM models)
+    // Set timeout based on model type
     const isKimiModel = nimModel.includes('kimi');
     const isGLMModel = nimModel.includes('glm');
-    const timeoutDuration = (isKimiModel || isGLMModel) ? 0 : 180000; // 0 = unlimited, 180000 = 3 minutes
+    const timeoutDuration = (isKimiModel || isGLMModel) ? 0 : 180000;
+    
+    // Determine if we should actually stream
+    const shouldStream = FORCE_STREAMING || stream;
     
     // Transform OpenAI request to NIM format
     const nimRequest = {
@@ -155,7 +162,7 @@ app.post('/v1/chat/completions', async (req, res) => {
       messages: messages,
       temperature: temperature || 0.7,
       max_tokens: max_tokens || 4096,
-      stream: FORCE_STREAMING // Force streaming based on toggle
+      stream: shouldStream
     };
     
     // Make request to NVIDIA NIM API
@@ -164,15 +171,16 @@ app.post('/v1/chat/completions', async (req, res) => {
         'Authorization': `Bearer ${NIM_API_KEY}`,
         'Content-Type': 'application/json'
       },
-      responseType: stream ? 'stream' : 'json',
-      timeout: timeoutDuration // Unlimited for Kimi, 3 minutes for others
+      responseType: shouldStream ? 'stream' : 'json',
+      timeout: timeoutDuration
     });
     
-    if (FORCE_STREAMING) {
-      // Handle streaming response
+    if (shouldStream) {
+      // Set proper headers for SSE streaming
       res.setHeader('Content-Type', 'text/event-stream');
       res.setHeader('Cache-Control', 'no-cache');
       res.setHeader('Connection', 'keep-alive');
+      res.setHeader('X-Accel-Buffering', 'no'); // Disable nginx buffering
       
       let buffer = '';
       
@@ -182,13 +190,45 @@ app.post('/v1/chat/completions', async (req, res) => {
         buffer = lines.pop() || '';
         
         lines.forEach(line => {
-          if (line.startsWith('data: ')) {
-            res.write(line + '\n');
+          const trimmedLine = line.trim();
+          if (trimmedLine.startsWith('data: ')) {
+            const dataContent = trimmedLine.substring(6);
+            
+            // Handle [DONE] message
+            if (dataContent === '[DONE]') {
+              res.write('data: [DONE]\n\n');
+              return;
+            }
+            
+            try {
+              const parsed = JSON.parse(dataContent);
+              
+              // Check if this is a thinking/reasoning token
+              if (parsed.choices && parsed.choices[0]) {
+                const delta = parsed.choices[0].delta;
+                
+                // If SHOW_THINKING is false, filter out thinking content
+                if (!SHOW_THINKING && delta && delta.reasoning_content) {
+                  // Skip reasoning/thinking tokens
+                  return;
+                }
+                
+                // Send the token
+                res.write(`data: ${dataContent}\n\n`);
+              } else {
+                res.write(`data: ${dataContent}\n\n`);
+              }
+            } catch (e) {
+              // If we can't parse, just send it through
+              res.write(`data: ${dataContent}\n\n`);
+            }
           }
         });
       });
       
       response.data.on('end', () => {
+        // Send final [DONE] if not already sent
+        res.write('data: [DONE]\n\n');
         console.log(`[SUCCESS] Streaming completed for ${model}`);
         res.end();
       });
@@ -197,6 +237,13 @@ app.post('/v1/chat/completions', async (req, res) => {
         console.error('[ERROR] Stream error:', err);
         res.end();
       });
+      
+      // Handle client disconnect
+      req.on('close', () => {
+        console.log('[INFO] Client disconnected');
+        response.data.destroy();
+      });
+      
     } else {
       // Non-streaming response
       const openaiResponse = {
@@ -258,5 +305,7 @@ app.listen(PORT, () => {
   console.log(`Running on port ${PORT}`);
   console.log(`Health: http://localhost:${PORT}/health`);
   console.log(`Models: ${Object.keys(MODEL_MAPPING).length} available`);
+  console.log(`Streaming: ${FORCE_STREAMING ? 'ENABLED' : 'DISABLED'}`);
+  console.log(`Thinking: ${SHOW_THINKING ? 'VISIBLE' : 'HIDDEN'}`);
   console.log(`========================================`);
 });
