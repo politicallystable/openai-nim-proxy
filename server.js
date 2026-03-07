@@ -15,7 +15,7 @@ const NIM_API_BASE = process.env.NIM_API_BASE || 'https://integrate.api.nvidia.c
 const NIM_API_KEY = process.env.NIM_API_KEY;
 
 // 🔥 CONFIGURATION TOGGLES
-const FORCE_STREAMING = true; // Set to false to disable streaming
+const FORCE_STREAMING = false; // Set to true to enable streaming (may cause issues with some apps)
 const DEFAULT_TEMPERATURE = 0.7;
 const DEFAULT_MAX_TOKENS = 4096;
 const DEFAULT_TIMEOUT = 180000; // 3 minutes (180 seconds)
