@@ -194,12 +194,13 @@ app.post('/v1/chat/completions', async (req, res) => {
         
         lines.forEach(line => {
           if (line.startsWith('data: ')) {
-            res.write(line + '\n');
+            res.write(line + '\n\n'); // Double newline for better compatibility
           }
         });
       });
       
       response.data.on('end', () => {
+        res.write('data: [DONE]\n\n'); // Proper completion marker
         console.log(`[${new Date().toISOString()}] ✓ ${model} completed`);
         res.end();
       });
